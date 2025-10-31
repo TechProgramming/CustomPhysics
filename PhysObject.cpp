@@ -12,7 +12,7 @@ void PhysObject::TickPhys(float Delta)
 	Position += Velocity * Delta;
 }
 
-void PhysObject::Draw() const
+void PhysObject::DrawPhysicsCircle() const
 {
 	DrawCircle(Position.x, Position.y, 30, raylib::Color::Red());
 }

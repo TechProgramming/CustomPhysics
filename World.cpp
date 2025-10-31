@@ -28,13 +28,13 @@ void World::TickFixed()
 {
     AccumulatedFixedTime -= TargetFixedStep;
 
-    for (auto& PObj : PhysObjects)
+    for (auto& physicsObjectOne : PhysObjects)
     {
-        PObj.gravityEnabled = true;
-        if (PObj.gravityEnabled)
+        physicsObjectOne.physicsEnabled = true;
+        if (physicsObjectOne.physicsEnabled)
         {
-            PObj.AddAcceleration({ 0,10 });
-            PObj.TickPhys(TargetFixedStep);
+            physicsObjectOne.AddAcceleration({ 0,10 });
+            physicsObjectOne.TickPhys(TargetFixedStep);
         }
     }
 
@@ -49,9 +49,9 @@ void World::Draw()
 
     DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
 
-    for (auto& PObj : PhysObjects)
+    for (auto& physicsObjectOne : PhysObjects)
     {
-        PObj.Draw();
+        physicsObjectOne.DrawPhysicsCircle();
     }
 
     EndDrawing();

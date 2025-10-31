@@ -12,12 +12,12 @@ public:
 	glm::vec2 Forces;
 
 	//Determines whether an object is effected by gravity or not
-	bool gravityEnabled;
+	bool physicsEnabled;
 
 	PhysObject();
 
 	void TickPhys(float Delta);
-	void Draw() const;
+	void DrawPhysicsCircle() const;
 
 	//Applies continuous forces on objects of any mass equally like gravity
 	void AddAcceleration(const glm::vec2 & Acceleration);
