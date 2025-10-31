@@ -72,7 +72,7 @@ Results on the [Silesia compression corpus](http://sun.aei.polsl.pl/~sdeor/index
 This software is available under 2 licenses -- choose whichever you prefer.
 ------------------------------------------------------------------------------
 ALTERNATIVE A - MIT License
-Copyright (c) 2020 Micha Mettke
+Copyright (c) 2020-2023 Micha Mettke
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
@@ -142,6 +142,10 @@ extern int zsinflate(void *out, int cap, const void *in, int size);
 #include <string.h> /* memcpy, memset */
 #include <assert.h> /* assert */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define sinfl_likely(x)       __builtin_expect((x),1)
 #define sinfl_unlikely(x)     __builtin_expect((x),0)
@@ -151,29 +155,30 @@ extern int zsinflate(void *out, int cap, const void *in, int size);
 #endif
 
 #ifndef SINFL_NO_SIMD
-#if defined(__x86_64__) || defined(_WIN32) || defined(_WIN64)
+#if defined(__arm__) || defined(__aarch64__) || defined(_M_ARM64)
+  #include <arm_neon.h>
+  #define sinfl_char16           uint8x16_t
+  #define sinfl_char16_ld(p)     vld1q_u8((const unsigned char*)(p))
+  #define sinfl_char16_str(d, v) vst1q_u8((unsigned char*)(d), v)
+  #define sinfl_char16_char(c)   vdupq_n_u8(c)
+#elif defined(__x86_64__) || defined(_WIN32) || defined(_WIN64)
   #include <emmintrin.h>
   #define sinfl_char16 __m128i
   #define sinfl_char16_ld(p) _mm_loadu_si128((const __m128i *)(void*)(p))
   #define sinfl_char16_str(d,v)  _mm_storeu_si128((__m128i*)(void*)(d), v)
   #define sinfl_char16_char(c) _mm_set1_epi8(c)
-#elif defined(__arm__) || defined(__aarch64__)
-  #include <arm_neon.h>
-  #define sinfl_char16 uint8x16_t
-  #define sinfl_char16_ld(p) vld1q_u8((const unsigned char*)(p))
-  #define sinfl_char16_str(d,v) vst1q_u8((unsigned char*)(d), v)
-  #define sinfl_char16_char(c) vdupq_n_u8(c)
 #else
   #define SINFL_NO_SIMD
 #endif
 #endif
 
 static int
-sinfl_bsr(unsigned n) {
+sinfl_bsr(unsigned long n) {
 #ifdef _MSC_VER
-  _BitScanReverse(&n, n);
-  return n;
-#elif defined(__GNUC__) || defined(__clang__)
+  unsigned long r = 0;
+  _BitScanReverse(&r, n);
+  return (int)(r);
+#else // defined(__GNUC__) || defined(__clang__) || defined(__TINYC__)
   return 31 - __builtin_clz(n);
 #endif
 }
@@ -400,17 +405,22 @@ sinfl_decompress(unsigned char *out, int cap, const unsigned char *in, int size)
     } break;
     case stored: {
       /* uncompressed block */
-      int len, nlen;
-      sinfl_refill(&s);
+      unsigned len, nlen;
       sinfl__get(&s,s.bitcnt & 7);
-      len = sinfl__get(&s,16);
-      nlen = sinfl__get(&s,16);
-      in -= 2; s.bitcnt = 0;
+      len = (unsigned short)sinfl__get(&s,16);
+      nlen = (unsigned short)sinfl__get(&s,16);
+      s.bitptr -= s.bitcnt / 8;
+      s.bitbuf = s.bitcnt = 0;
 
-      if (len > (e-in) || !len)
+      if ((unsigned short)len != (unsigned short)~nlen)
         return (int)(out-o);
-      memcpy(out, in, (size_t)len);
-      in += len, out += len;
+      if (len > (e - s.bitptr))
+        return (int)(out-o);
+
+      if (sinfl_unlikely(out + len > oe)) return -2;
+      memcpy(out, s.bitptr, (size_t)len);
+      s.bitptr += len, out += len;
+      if (last) return (int)(out-o);
       state = hdr;
     } break;
     case fixed: {
@@ -443,8 +453,9 @@ sinfl_decompress(unsigned char *out, int cap, const unsigned char *in, int size)
 
       /* decode code lengths */
       for (n = 0; n < nlit + ndist;) {
+        int sym = 0;
         sinfl_refill(&s);
-        int sym = sinfl_decode(&s, hlens, 7);
+        sym = sinfl_decode(&s, hlens, 7);
         switch (sym) {default: lens[n++] = (unsigned char)sym; break;
         case 16: for (i=3+sinfl_get(&s,2);i;i--,n++) lens[n]=lens[n-1]; break;
         case 17: for (i=3+sinfl_get(&s,3);i;i--,n++) lens[n]=0; break;
@@ -458,16 +469,16 @@ sinfl_decompress(unsigned char *out, int cap, const unsigned char *in, int size)
     case blk: {
       /* decompress block */
       while (1) {
+        int sym;
         sinfl_refill(&s);
-        int sym = sinfl_decode(&s, s.lits, 10);
+        sym = sinfl_decode(&s, s.lits, 10);
         if (sym < 256) {
           /* literal */
-          if (sinfl_unlikely(out >= oe)) {
-            return (int)(out-o);
-          }
+          if (sinfl_unlikely(out >= oe)) return -2;
           *out++ = (unsigned char)sym;
           sym = sinfl_decode(&s, s.lits, 10);
           if (sym < 256) {
+            if (sinfl_unlikely(out >= oe)) return -2;
             *out++ = (unsigned char)sym;
             continue;
           }
@@ -479,15 +490,17 @@ sinfl_decompress(unsigned char *out, int cap, const unsigned char *in, int size)
           break;
         }
         /* match */
+        if (sym >= 286) {
+          /* length codes 286 and 287 must not appear in compressed data */
+          return (int)(out-o);
+        }
         sym -= 257;
         {int len = sinfl__get(&s, lbits[sym]) + lbase[sym];
         int dsym = sinfl_decode(&s, s.dsts, 8);
         int offs = sinfl__get(&s, dbits[dsym]) + dbase[dsym];
         unsigned char *dst = out, *src = out - offs;
-        if (sinfl_unlikely(offs > (int)(out-o))) {
-          return (int)(out-o);
-        }
         out = out + len;
+        if (sinfl_unlikely(out > oe)) return -2;
 
 #ifndef SINFL_NO_SIMD
         if (sinfl_likely(oe - out >= 16 * 3)) {
@@ -591,7 +604,8 @@ zsinflate(void *out, int cap, const void *mem, int size) {
   const unsigned char *in = (const unsigned char*)mem;
   if (size >= 6) {
     const unsigned char *eob = in + size - 4;
-    int n = sinfl_decompress((unsigned char*)out, cap, in + 2u, size);
+    int n = sinfl_decompress((unsigned char*)out, cap, in + 2, size - 6);
+    if (n < 0) return -2;
     unsigned a = sinfl_adler32(1u, (unsigned char*)out, n);
     unsigned h = eob[0] << 24 | eob[1] << 16 | eob[2] << 8 | eob[3] << 0;
     return a == h ? n : -1;
@@ -599,5 +613,9 @@ zsinflate(void *out, int cap, const void *mem, int size) {
     return -1;
   }
 }
+
+#ifdef __cplusplus
+}
 #endif
 
+#endif /* SINFL_IMPLEMENTATION */

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/raylib-x64-windows-5.5-747b616c-1050-4d88-860f-ac66cc5d2bda",
-  "name": "raylib:x64-windows@5.5 a2195e4e9f78aaefcfd708a249d1430ddff88ac13324c5a5fda206660dd9c4c2",
+  "documentNamespace": "https://spdx.org/spdxdocs/raylib-x64-windows-5.5#1-90eda0ad-fa64-4fb8-b943-aacb00d81720",
+  "name": "raylib:x64-windows@5.5#1 62fc20b4c75c854b40993c468436669f0814534319690ba8337fa554bea49c47",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-09-03-4580816534ed8fd9634ac83d46471440edd82dfe"
     ],
-    "created": "2025-10-30T17:36:28Z"
+    "created": "2025-10-31T14:22:38Z"
   },
   "relationships": [
     {
@@ -122,8 +122,8 @@
     {
       "name": "raylib",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "5.5",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg@293c69f77a430e6d7ed786224cd81e412c0c2db2",
+      "versionInfo": "5.5#1",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@e0d1117e1778220a4a156f56056f9e3cf3d28028",
       "homepage": "https://github.com/raysan5/raylib",
       "licenseConcluded": "Zlib",
       "licenseDeclared": "NOASSERTION",
@@ -134,7 +134,7 @@
     {
       "name": "raylib:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a2195e4e9f78aaefcfd708a249d1430ddff88ac13324c5a5fda206660dd9c4c2",
+      "versionInfo": "62fc20b4c75c854b40993c468436669f0814534319690ba8337fa554bea49c47",
       "downloadLocation": "NONE",
       "licenseConcluded": "Zlib",
       "licenseDeclared": "NOASSERTION",
@@ -187,7 +187,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "448e2d2feb1fc2f7e34487c291c92783423fe250668c73f936208be4956a2687"
+          "checksumValue": "61805ad8e6619740f7682c1229127dcffa99bfa13580c43fe2102f7b9784376a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -199,7 +199,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a44dde1a856d6bfd4b2dace4a6318924d4e8e8246d0914ebfab5eff1f8b46f29"
+          "checksumValue": "474842ff3edc4a4d694eb35b7eb0c59631adffaa7fe1736e3cb1199880ba89e6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -211,7 +211,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2941ee17677c323733ef6691e36cc984f09a9cc78515364c9226954719b0fa3f"
+          "checksumValue": "1558ab52452e846106c99a6d0782fa661a28f936a1cee054d59a486959b4276c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -223,7 +223,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "fd378c72111f1dd41e407b4707a2c19ec7d91e6e963efb195c26baac2379cfe3"
+          "checksumValue": "234c4f8ed047134ae2b6082b7be6e1822f5c4e566a2092ae870e34cf3a8a53a3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -247,7 +247,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c570e88d619c17d4a0bb250be7333aef5e0c65ec7242bef08adb639fe0ec5c1f"
+          "checksumValue": "950d795ccf21b90912c32f9f9735bec109218be04736b9e1f17a811d7fea9d06"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -259,7 +259,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8d1ab8a287b08f8c20843bfe02fb060f6f875bc530a073026752ea43f86a1bcf"
+          "checksumValue": "d90368e479ebff2bc60f2ffa45db485ac359a2010a9a40c836016d25ba89079b"
         }
       ],
       "licenseConcluded": "NOASSERTION",

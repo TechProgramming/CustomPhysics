@@ -1,6 +1,7 @@
 {
   "dependencies": [
+    "glm",
     "raylib",
-    "glm"
+    "raylib-cpp"
   ]
 }
