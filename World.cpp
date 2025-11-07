@@ -1,5 +1,16 @@
 #include "World.h"
+
+#include <unordered_map>
+#include <iostream>
+
 #include "raylib.h"
+#include "EnumUtility.h"
+#include "Shapes.h"
+
+using CollisionFunc = bool (*)(const glm::vec2&, const Shape&, const glm::vec2&, const Shape&);
+using CollisionMap = std::unordered_map<ShapeType, CollisionFunc>;
+
+CollisionMap ColMap;
 
 World::World() : AccumulatedFixedTime(0), TargetFixedStep(1.0f / 30.0f)
 {
@@ -13,6 +24,8 @@ void World::Init()
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     SetTargetFPS(60);
+
+    ColMap[ShapeType::CIRCLE | ShapeType::CIRCLE] = CheckCircleCircle;
 
     OnInit();
 }
@@ -28,6 +41,7 @@ void World::TickFixed()
 {
     AccumulatedFixedTime -= TargetFixedStep;
 
+    //Integrates forces and velocity
     for (auto& physicsObjectOne : PhysObjects)
     {
         physicsObjectOne.physicsEnabled = true;
@@ -35,6 +49,36 @@ void World::TickFixed()
         {
             physicsObjectOne.AddAcceleration({ 0,10 });
             physicsObjectOne.ContinuousTick(TargetFixedStep);
+        }
+    }
+
+    //Performs collision detection and resolution
+    for (auto& i : PhysObjects)
+    {
+        for (auto& j : PhysObjects)
+        {
+            //Skips if i and j point to the same object
+            if (&i == &j) { continue; }
+
+            //Skips if the object has no collider
+            if (i.Collider.Type == ShapeType::NONE || j.Collider.Type == ShapeType::NONE) { continue; }
+
+            ShapeType ColKey = i.Collider.Type | j.Collider.Type;
+            auto KeyPairIterator = ColMap.find(ColKey);
+
+            bool bHasFunc = KeyPairIterator != ColMap.end();
+            if (bHasFunc)
+            {
+                bool bIsColliding = ColMap[ColKey](i.Position, i.Collider, j.Position, j.Collider);
+                if (bIsColliding)
+                {
+                    std::cout << "Collision detected" << std::endl;
+                }
+            }
+            else
+            {
+                std::cerr << "Can't test for collision; no collision function defined for this pair." << std::endl;
+            }
         }
     }
 
@@ -91,4 +135,34 @@ inline void World::OnInit()
 
     newObject.Position = { 300, 150 };
     PhysObjects.push_back(newObject);
+}
+
+//Runs at the end of Tick()
+
+inline void World::OnTick() 
+{
+    if (IsMouseButtonPressed(0))
+    {
+        PhysObject newObject;
+        newObject.Collider.Type = ShapeType::CIRCLE;
+        newObject.Collider.CircleData.Radius = 10.0f;
+
+        Vector2 currentMousePosition = GetMousePosition();
+        newObject.Position.x = currentMousePosition.x;
+        newObject.Position.y = currentMousePosition.y;
+
+        PhysObjects.push_back(newObject);
+    }
+    else if (IsMouseButtonPressed(1))
+    {
+        PhysObject newObject;
+        newObject.Collider.Type = ShapeType::AABB;
+        newObject.Collider.AABBData.HalfExtents = { 30.0f, 25.0f };
+
+        Vector2 currentMousePosition = GetMousePosition();
+        newObject.Position.x = currentMousePosition.x;
+        newObject.Position.y = currentMousePosition.y;
+
+        PhysObjects.push_back(newObject);
+    }
 }

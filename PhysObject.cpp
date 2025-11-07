@@ -27,6 +27,8 @@ void PhysObject::DrawPhysicsCircle() const
 		DrawCircleLines(Position.x, Position.y, 30, raylib::Color::Red());
 		break;
 	case ShapeType::AABB:
+		DrawRectangleLines(Position.x - Collider.AABBData.HalfExtents.x, Position.y - Collider.AABBData.HalfExtents.y, Collider.AABBData.HalfExtents.x * 2.0f,
+			Collider.AABBData.HalfExtents.y * 2.0f, raylib::Color::Red());
 		break;
 	}
 }

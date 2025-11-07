@@ -46,7 +46,7 @@ protected:
 	virtual void OnInit();;
 
 	//Runs at the end of Tick()
-	virtual void OnTick() {};
+	virtual void OnTick();;
 
 	//Runs at the end of TickFixed()
 	virtual void OnTickFixed() {};
