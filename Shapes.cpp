@@ -40,3 +40,23 @@ bool CheckAABBAABB(const glm::vec2& Shape1Position, const Shape& Shape1, const g
 
     return CheckAABBAABB(Shape1Position, Shape1.AABBData, Shape2Position, Shape2.AABBData);
 }
+
+glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Circle& CircleA, const glm::vec2& PositionB, const Circle& CircleB, float& Penetration)
+{
+    //Gets the distance between the two circles
+    float distance = glm::length(PositionB - PositionA);
+
+    //Adds the sum of the two radii
+    float radii = CircleA.Radius + CircleB.Radius;
+
+    //Finds the difference and places it into the Penetration parameter
+    Penetration = radii - distance;
+
+    //Returns the direction to correct along
+    return glm::normalize(PositionB - PositionA);
+}
+
+glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Shape& ShapeA, const glm::vec2& PositionB, const Shape& ShapeB, float& Penetration)
+{
+    return DepenetrateCircleCircle(PositionA, ShapeA, PositionB, ShapeB, Penetration);
+}

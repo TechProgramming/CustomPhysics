@@ -48,3 +48,9 @@ bool CheckCircleCircle(const glm::vec2& Shape1Position, const Shape& Shape1, con
 //Tests if two shapes (assuming they're AABBs) at their given locations and shape are in collision
 //Returns true if collision occurs, false otherwise
 bool CheckAABBAABB(const glm::vec2& Shape1Position, const Shape& Shape1, const glm::vec2& Shape2Position, const Shape& Shape2);
+
+//Determines the minimum translation vector (MTV) to separate two circles
+glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Circle& CircleA, const glm::vec2& PositionB, const Circle& CircleB, float& Penetration);
+
+//Determines the minimum translation vector (MTV) to separate two shapes (assuming they're circles)
+glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Shape& ShapeA, const glm::vec2& PoistionB, const Shape& ShapeB, float& Penetration);

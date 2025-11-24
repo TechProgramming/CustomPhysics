@@ -9,8 +9,11 @@
 
 using CollisionFunc = bool (*)(const glm::vec2&, const Shape&, const glm::vec2&, const Shape&);
 using CollisionMap = std::unordered_map<ShapeType, CollisionFunc>;
+using DepenetrationFunc = glm::vec2(*)(const glm::vec2& PositionA, const Shape& ShapeA, const glm::vec2& PositionB, const Shape& ShapeB, float& Penetration);
+using DepenetrationMap = std::unordered_map<ShapeType, DepenetrationFunc>;
 
 CollisionMap ColMap;
+DepenetrationMap DepenMap;
 
 World::World() : AccumulatedFixedTime(0), TargetFixedStep(1.0f / 30.0f)
 {
@@ -26,6 +29,7 @@ void World::Init()
     SetTargetFPS(60);
 
     ColMap[ShapeType::CIRCLE | ShapeType::CIRCLE] = CheckCircleCircle;
+    DepenMap[ShapeType::CIRCLE | ShapeType::CIRCLE] = DepenetrateCircleCircle;
 
     OnInit();
 }
