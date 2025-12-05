@@ -82,9 +82,9 @@ void PhysObject::ResolvePhysObjects(PhysObject& LeftHandSide, PhysObject& RightH
 		RightHandSide.Position, RightHandSide.Velocity, RightHandSide.Mass, Elasticity, Normal);
 
 	//Depenetrates objects
-	glm::vec2 magnitudeVector = Normal * Penetration;
-	LeftHandSide.Position -= magnitudeVector;
-	RightHandSide.Position += magnitudeVector;
+	glm::vec2 minimumTranslationVector = Normal * Penetration;
+	LeftHandSide.Position -= minimumTranslationVector;
+	RightHandSide.Position += minimumTranslationVector;
 
 	//Applies impulses to to update velocities after a collision
 	//Applies an equal but opposite force to the other
