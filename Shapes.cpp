@@ -51,6 +51,14 @@ bool CheckAABBAABB(const glm::vec2& Shape1Position, const Shape& Shape1, const g
     return CheckAABBAABB(Shape1Position, Shape1.AABBData, Shape2Position, Shape2.AABBData);
 }
 
+bool CheckCircleAABB(const glm::vec2& Shape1Position, const Shape& Shape1, const glm::vec2& Shape2Position, const Shape& Shape2)
+{
+    assert(Shape1.Type == ShapeType::CIRCLE && "Called CheckCircleAABB but a Circle wasn't provided for shape 1.");
+    assert(Shape2.Type == ShapeType::AABB && "Called CheckCircleAABB but an AABB wasn't provided for shape 2.");
+
+    return CheckCircleAABB(Shape1Position, Shape1.CircleData, Shape2Position, Shape2.AABBData);
+}
+
 glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Circle& CircleA, const glm::vec2& PositionB, const Circle& CircleB, float& Penetration)
 {
     //Gets the distance between the two circles
@@ -71,10 +79,24 @@ glm::vec2 DepenetrateCircleCircle(const glm::vec2& PositionA, const Shape& Shape
     return DepenetrateCircleCircle(PositionA, ShapeA, PositionB, ShapeB, Penetration);
 }
 
-bool CheckCircleAABB(const glm::vec2& Shape1Position, const Shape& Shape1, const glm::vec2& Shape2Position, const Shape& Shape2)
-{
-    assert(Shape1.Type == ShapeType::CIRCLE && "Called CheckCircleAABB but a Circle wasn't provided for shape 1.");
-    assert(Shape2.Type == ShapeType::AABB && "Called CheckCircleAABB but an AABB wasn't provided for shape 2.");
 
-    return CheckCircleAABB(Shape1Position, Shape1.CircleData, Shape2Position, Shape2.AABBData);
+glm::vec2 DepenetrateAABBAABB(const glm::vec2& PositionA, const Shape& AABB1, const glm::vec2& PositionB, const Shape& AABB2, float& Penetration)
+{
+    //Gets the distance between the two circles
+    float distance = glm::length(PositionB - PositionA);
+
+    //Adds the sum of the two half extents
+    float halfExtents = AABB1.AABBData.HalfExtents.x + AABB2.AABBData.HalfExtents.x;
+
+    //Finds the difference and places it into the Penetration parameter
+    Penetration = halfExtents - distance;
+
+    //Returns the direction to correct along
+    return glm::normalize(PositionB - PositionA);
 }
+
+//glm::vec2 DepenetrateAABBAABB(const glm::vec2& PositionA, const Shape& ShapeA, const glm::vec2& PositionB, const Shape& ShapeB, float& Penetration)
+//{
+//    return DepenetrateAABBAABB(PositionA, ShapeA, PositionB, ShapeB, Penetration);
+//}
+

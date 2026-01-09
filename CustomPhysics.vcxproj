@@ -131,12 +131,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PhysObject.cpp" />
     <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnumUtility.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="PhysObject.h" />
     <ClInclude Include="Shapes.h" />
     <ClInclude Include="World.h" />

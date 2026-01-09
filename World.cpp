@@ -33,6 +33,8 @@ void World::Init()
     ColMap[ShapeType::AABB | ShapeType::AABB] = CheckAABBAABB;
     ColMap[ShapeType::CIRCLE | ShapeType::AABB] = CheckCircleAABB;
     DepenMap[ShapeType::CIRCLE | ShapeType::CIRCLE] = DepenetrateCircleCircle;
+    //DepenMap[ShapeType::AABB | ShapeType::AABB] = DepenetrateAABBAABB;
+    //DepenMap[ShapeType::AABB | ShapeType::CIRCLE] = DepenetrateCircleAABB;
 
     OnInit();
 }
@@ -73,11 +75,6 @@ void World::TickFixed()
             ShapeType ColKey = i.Collider.Type | j.Collider.Type;
             auto KeyPairIterator = ColMap.find(ColKey);
 
-            //PhysObject& LeftHandSide = i;
-            //PhysObject& RightHandSide = j;
-            /*ShapeType PairType = i.Collider.Type | j.Collider.Type;*/
-
-
             bool bHasFunc = KeyPairIterator != ColMap.end();
             if (bHasFunc)
             {
@@ -90,17 +87,20 @@ void World::TickFixed()
                 }
                 else
                 {
-                    bool bIsColliding = ColMap[ColKey](i.Position, i.Collider, j.Position, j.Collider);
+                    bIsColliding = ColMap[ColKey](i.Position, i.Collider, j.Position, j.Collider);
                 }
+                     //PhysObject& LeftHandSide = i;
+                     //PhysObject& RightHandSide = j;
+                ShapeType PairType = i.Collider.Type | j.Collider.Type;
 
                 if (bIsColliding)
                 {
-                    /*float penetration = 0.0f;
+                    float penetration = 0.0f;
 
-                    glm::vec2 normal = DepenMap[PairType](i.Position, i.Collider,
-                        j.Position, j.Collider, penetration);*/
+                    const glm::vec2 normal = DepenMap[PairType](i.Position, i.Collider,
+                        j.Position, j.Collider, penetration);
 
-                    /*ResolvePhysObjects(&i, &j, 1.0f, normal, penetration);*/
+                    i.ResolvePhysObjects(i, j, 1.0f, normal, penetration);
 
                     std::cout << "Collision detected" << std::endl;
                 }
